@@ -1,4 +1,4 @@
-mport streamlit as st
+import streamlit as st
 import yfinance as yf
 import requests
 import sqlite3
