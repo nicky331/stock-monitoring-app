@@ -1,4 +1,4 @@
-import streamlit as st
+mport streamlit as st
 import yfinance as yf
 import requests
 import sqlite3
@@ -46,9 +46,15 @@ if "page" not in st.session_state:
 if "monitoring" not in st.session_state:
     st.session_state.monitoring = False  # 監控狀態
 
-# LINE Notify 設定
-LINE_NOTIFY_TOKENS = ['你的 LINE Notify Token']
-SENT_NOTIFICATIONS = set()
+if "sent_notifications" not in st.session_state:
+    st.session_state.sent_notifications = set()  # 用來紀錄已發送通知的股票代號
+
+
+# LINE Notify 的 Access Token（多個 Token）
+LINE_NOTIFY_TOKENS = [
+    'B0xvaogQPZwDrtouPPvsERhADsAV6HfU9hZDsGy6ypw',  # 你的 Token
+    'Z9rF1jjSo39BcuJ1ucJkfmULWTSih6nZRWMs2jDjcpe',  # 爸爸的 Token
+]
 
 
 # 密碼加密函數
@@ -125,7 +131,9 @@ def get_stock_price(ticker):
 def check_stock_prices():
     for stock in st.session_state.stocks:
         ticker, target_price = stock['code'], stock['price']
-        if ticker in SENT_NOTIFICATIONS:
+
+        # 檢查是否已通知
+        if ticker in st.session_state.sent_notifications:
             continue
 
         current_price = get_stock_price(ticker)
@@ -138,7 +146,7 @@ def check_stock_prices():
         if current_price >= target_price:
             send_line_notify(f"📢 {ticker} 股價達標！目前價格：{current_price} 元")
             st.success(f"已通知 {ticker} 達標！")
-            SENT_NOTIFICATIONS.add(ticker)
+            st.session_state.sent_notifications.add(ticker)
 
 
 # **登入頁面**
